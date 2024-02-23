@@ -13,6 +13,7 @@ set.seed(42)
 
 # package setup
 library(dplyr)
+library(here)
 library(snakecase)
 library(mlbplotR)
 library(baseballr)
@@ -21,13 +22,13 @@ library(baseballr)
 params <- list(
   level = "rookie"
 )
-df_scraped <- readRDS(paste0("2023-11-02-app/data/1-scraped_data_", params$level, ".RDS"))
-game_info_scraped <- readRDS(paste0("2023-11-02-app/data/1-scraped_data_game_", params$level, ".rds"))
+df_scraped <- readRDS(paste0(here(), "data/1-scraped_data_", params$level, ".RDS"))
+game_info_scraped <- readRDS(paste0(here(), "data/1-scraped_data_game_", params$level, ".rds"))
 source("2023-11-02-app/0-helper-funs.R")
 
 # clean data --------------------------------------------------------------------
 
-df_clean <- clean_data(df_scraped, game_info_scraped)
+df_clean <- clean_data(df_scraped, game_info_scraped) %>% filter(season >= 2021)
 
 # save -------------------------------------------------------------
 

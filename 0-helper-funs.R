@@ -174,6 +174,18 @@ clean_data <- function(data, game_info = NULL) {
 }
 
 
+# wrapper function to extract random effects from lme4 models
+extract_ranef <- function(m, slot, nm) {
+  sigma <- attr(lme4::VarCorr(m)[[slot]], "stddev")
+  d <- lme4::ranef(m)[[slot]] |>  
+    tibble::rownames_to_column(slot) |> 
+    tibble::tibble() |> 
+    dplyr::mutate(`(Intercept)` = `(Intercept)` / sigma)
+  d[[1]] <- as.numeric(d[[1]])
+  names(d)[2] <- nm
+  d
+}
+# fitting the models
 fit_context_models <- function(pa_dat, 
                                bip_dat, 
                                pitch_dat, 
@@ -185,18 +197,6 @@ fit_context_models <- function(pa_dat,
   stopifnot(length(level) == 1)
   print(paste("Fitting", season, level))
   
-  # wrapper function to extract random effects from lme4 models
-  extract_ranef <- function(m, slot, nm) {
-    sigma <- attr(lme4::VarCorr(m)[[slot]], "stddev")
-    d <- lme4::ranef(m)[[slot]] |>  
-      tibble::rownames_to_column(slot) |> 
-      tibble::tibble() |> 
-      dplyr::mutate(`(Intercept)` = `(Intercept)` / sigma)
-    d[[1]] <- as.numeric(d[[1]])
-    names(d)[2] <- nm
-    d
-  }
-  
   # dataframes for component models
   ab_dat <- subset(pa_dat, is_ab)
   babip_dat <- subset(pa_dat, pa_outcome %in% c("b1", "b2", "b3", "bip_out"))
@@ -204,6 +204,7 @@ fit_context_models <- function(pa_dat,
   
   # model specifications
   f_raa600 <- update(f_base, raa600 ~ .)
+  f_raa600_split <- update(f_base, raa600 ~ . + (1|pitcher_id:bathand))
   f_k <- update(f_base, I(pa_outcome == "k") ~ .)
   f_bb <- update(f_base, I(pa_outcome == "bb") ~ .)
   f_iso <- update(f_base, pmax(bases - 1, 0) ~ .)
@@ -228,6 +229,7 @@ fit_context_models <- function(pa_dat,
   
   # fitting models
   m_raa600 <- lme4::lmer(f_raa600, data = pa_dat)
+  m_raa600_split <- lme4::lmer(f_raa600_split, data = pa_dat)
   m_k <- lme4::glmer(f_k, pa_dat, family = binomial())
   m_bb <- lme4::glmer(f_bb, pa_dat, family = binomial())
   m_iso <- lme4::lmer(f_iso, ab_dat)
@@ -259,6 +261,7 @@ fit_context_models <- function(pa_dat,
     full_join(extract_ranef(m_contact, "batter_id", "z_contact"), by = "batter_id") %>% 
     full_join(extract_ranef(m_gb, "batter_id", "z_gb"), by = "batter_id")
   ranefs_pit <- extract_ranef(m_raa600, "pitcher_id", "z_raa600") %>% 
+    full_join(extract_ranef(m_raa600_split, "pitcher_id", "z_raa600_split"), by = "pitcher_id") %>%
     full_join(extract_ranef(m_k, "pitcher_id", "z_kpct"), by = "pitcher_id") %>% 
     full_join(extract_ranef(m_bb, "pitcher_id", "z_bbpct"), by = "pitcher_id") %>% 
     full_join(extract_ranef(m_iz_swing, "pitcher_id", "z_iz_swing"), by = "pitcher_id") %>% 

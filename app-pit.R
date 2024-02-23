@@ -68,7 +68,7 @@ server <- function(input, output, session) {
       color_fun(z_gb, gbpct, r = F) |>
       color_fun(z_driven, driven) |>
       fmt_percent(c(kpct, bbpct, iz, contact, gbpct, driven), decimals = 1) |> 
-      fmt_number(c(raa700, ev_avg), decimals = 1) |> 
+      fmt_number(c(raa700, raa700_split, ev_avg), decimals = 1) |> 
       cols_hide(c(pitcher_id, starts_with("z_"))) |> 
       sub_missing(missing_text = "-") |> 
       tab_options(table.font.size = "80%") |> 
@@ -77,6 +77,7 @@ server <- function(input, output, session) {
                  org = "Org", 
                  bf = "TBF", 
                  raa700 = with_tooltip("P700", "Pitching RAA/700 BF"), 
+                 raa700_split = with_tooltip("Spl", "Platoon split RAA/700 BF"), 
                  kpct = "K%", 
                  bbpct = with_tooltip("BB%", "IBB and HBP are included with BB"), 
                  iz = "Zone%", 
@@ -88,13 +89,14 @@ server <- function(input, output, session) {
   output$tbl_metrics <- render_gt({
     dat_pit_metrics() |> 
       gt() |> 
-      fmt_percent(c(pct_pre2k, pct_2k), decimals = 1) |> 
+      fmt_percent(c(pct_vl, pct_vr), decimals = 1) |> 
       tab_options(table.font.size = "80%") |> 
       sub_missing(missing_text = "-") |> 
+      cols_align("center") |> 
       cols_hide(pitcher_id) |> 
       cols_label(pitch_type = "Type", 
-                 pct_pre2k = "Pre-2K%", 
-                 pct_2k = "2K%", 
+                 pct_vl = "vL%", 
+                 pct_vr = "vR%", 
                  velo_label = "Velo", 
                  hb_label = "HB", 
                  ivb_label = "IVB")

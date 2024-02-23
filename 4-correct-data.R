@@ -11,14 +11,15 @@ set.seed(42)
 
 # package setup
 library(tidyverse)
+library(here)
 library(lme4)
 library(furrr)
 plan(multisession, workers = getOption("mc.cores"))
 
-source("2023-11-02-app/0-helper-funs.R")
-df_pa <- readRDS("2023-11-02-app/data/3-pa_data.RDS")
-df_bip <- readRDS("2023-11-02-app/data/3-bip_data.RDS")
-df_pitch_agg <- readRDS("2023-11-02-app/data/3-pitch_data_agg.RDS")
+source(file.path(here(), "0-helper-funs.R"))
+df_pa <- readRDS(file.path(here(), "data/3-pa_data.RDS"))
+df_bip <- readRDS(file.path(here(), "data/3-bip_data.RDS"))
+df_pitch_agg <- readRDS(file.path(here(), "data/3-pitch_data_agg.RDS"))
 
 # models adjusting for context -------------------------------------------------
 
@@ -37,7 +38,8 @@ gc()
 # fitting models in parallel
 df_results <- df_nested %>% 
   mutate(m = future_pmap(list(pa_dat, bip_dat, pitch_dat), 
-                         function(d1, d2, d3) fit_context_models(d1, d2, d3)))
+                         function(d1, d2, d3) fit_context_models(d1, d2, d3), 
+                         .progress = T))
 
 # extracting and saving results
 ranefs_extracted <- df_results %>% 
@@ -53,7 +55,7 @@ ranefs_pit <- ranefs_extracted %>%
 
 # saving -----------------------------------------------------------------------
 
-saveRDS(ranefs_bat, "2023-11-02-app/data/4-stat_ranefs_bat.RDS")
-saveRDS(ranefs_pit, "2023-11-02-app/data/4-stat_ranefs_pit.RDS")
+saveRDS(ranefs_bat, file.path(here(), "data/4-stat_ranefs_bat.RDS"))
+saveRDS(ranefs_pit, file.path(here(), "data/4-stat_ranefs_pit.RDS"))
 
 

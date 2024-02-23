@@ -15,6 +15,7 @@ set.seed(42)
 library(tidyverse)
 library(baseballr)
 library(progress)
+library(here)
 
 # params
 params <- list(
@@ -29,7 +30,7 @@ level_num <- case_when(params$level == "mlb" ~ 1,
                        params$level == "lowa" ~ 14,  
                        params$level == "rookie" ~ 16, 
                        TRUE ~ NA_real_)
-source("2023-11-02-app/0-helper-funs.R")
+source(file.path(here(), "0-helper-funs.R"))
 
 # load data --------------------------------------------------------------------
 
@@ -41,7 +42,7 @@ pbp_i <- bind_rows(map(game_pks_clean$game_pk, mlb_pbp, .progress = T))
 
 # save -------------------------------------------------------------
 
-saveRDS(pbp_i, file = paste0("2023-11-02-app/data/1-scraped_data_", params$level, ".rds"))
-saveRDS(game_pks_clean, file = paste0("2023-11-02-app/data/1-scraped_data_game_", params$level, ".rds"))
+saveRDS(pbp_i, file = paste0(here(), "data/1-scraped_data_", params$level, ".rds"))
+saveRDS(game_pks_clean, file = paste0(here(), "data/1-scraped_data_game_", params$level, ".rds"))
 
 

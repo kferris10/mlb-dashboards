@@ -14,7 +14,6 @@
 # deploy
 # park adjust pitch data
 # RAA/GB/Miss to pitch data
-# do pitch data usage vL/vR
 
 # setup ------------------------------------------------------------------------
 
@@ -119,7 +118,7 @@ server <- function(input, output, session) {
       color_fun(z_driven, driven) |> 
       data_color(max_ev, method = "bin", bins = 9, palette = "RdBu", domain = c(98, 122), na_color = "white", reverse = T) |> 
       fmt_number(c(ev_avg, max_ev), decimals = 1) |> 
-      fmt_percent(c(iz_swing, chase, contact, hh95, driven), decimals = 1) |> 
+      fmt_percent(c(iz_swing, chase, contact, hh95, gbpct, driven), decimals = 1) |> 
       cols_hide(c(batter_id:level, starts_with("z_"))) |> 
       sub_missing(missing_text = "-") |> 
       tab_spanner(label = "Value", columns = c(season, level)) |> 

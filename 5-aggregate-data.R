@@ -44,6 +44,7 @@ df_bat_pa <- df_pa %>%
     .groups = "drop"
   ) %>% 
   arrange(desc(season), desc(level))
+df_bat_pa %>% filter(batter_id == 545361)
 
 # bip stats
 df_bat_bip <- df_bip %>% 
@@ -77,6 +78,9 @@ df_bat_pitch <- df_pitch %>%
 
 # pa stats
 df_pit_pa <- df_pa %>% 
+  mutate(is_platoon = bathand != pithand, 
+         platoon_raa = ifelse(is_platoon, raa600, NA), 
+         same_raa = ifelse(!is_platoon, raa600, NA)) %>% 
   group_by(pitcher_id, season, level) %>% 
   mutate(n_orgs = n_distinct(pit_org)) %>% 
   summarise(
@@ -84,9 +88,12 @@ df_pit_pa <- df_pa %>%
     pa = n(), 
     kpct = mean(pa_outcome == "k"), 
     bbpct = mean(pa_outcome == "bb"), 
+    raa600_platoon = mean(platoon_raa, na.rm = T), 
+    raa600_same = mean(same_raa, na.rm = T), 
     raa700 = mean(raa600) * 7 / 6, 
     .groups = "drop"
   ) %>% 
+  mutate(raa700_split = (raa600_same - raa600_platoon) * 7 / 6) %>% 
   arrange(desc(season), desc(level))
 
 # bip stats
@@ -149,7 +156,8 @@ df_pit_metrics <- df_pitch %>%
 ### batter data
 df_bat_results <- df_bat_pa %>% 
   mutate(bat = raa600 / 600 * pa) %>% 
-  select(batter_id, season, level, org, pa, bat, raa600, kpct, bbpct, iso, babip, avg, obp, slg) %>% 
+  select(batter_id, season, level, org, pa, bat, raa600, 
+         kpct, bbpct, iso, babip, avg, obp, slg) %>% 
   mutate(across(c(bat, raa600), ~ round(.x, 1)), 
          across(c(kpct, bbpct, iso, babip, avg, obp, slg), ~ round(.x, 3)))
 df_bat_process <- df_bat_bip %>% 
@@ -162,8 +170,8 @@ df_bat_process <- df_bat_bip %>%
 df_pit_stats <- df_pit_pa %>% 
   full_join(df_pit_bip, by = c("pitcher_id", "season", "level")) %>% 
   full_join(df_pit_pitch, by = c("pitcher_id", "season", "level")) %>% 
-  select(pitcher_id, season, level, org, bf = pa, raa700, kpct, bbpct, iz, contact, ev_avg, gbpct, driven) %>% 
-  mutate(across(c(raa700, ev_avg), ~ round(.x, 1)), 
+  select(pitcher_id, season, level, org, bf = pa, raa700, raa700_split, kpct, bbpct, iz, contact, ev_avg, gbpct, driven) %>% 
+  mutate(across(c(raa700, raa700_split, ev_avg), ~ round(.x, 1)), 
          across(c(kpct, bbpct, iz, contact, gbpct), ~ round(.x, 3)))
 df_pit_metrics_display <- df_pit_metrics  %>% 
   left_join(df_pit_metrics_mlb, by = c("pithand", "pitch_type"), suffix = c("", "_mlb")) %>% 
@@ -172,7 +180,7 @@ df_pit_metrics_display <- df_pit_metrics  %>%
   mutate(velo_label = paste0(velo, " (", velo_mlb, ")"), 
          hb_label = paste0(hb, " (", hb_mlb, ")"), 
          ivb_label = paste0(ivb, " (", ivb_mlb, ")")) %>% 
-  select(pitcher_id, pitch_type, pct_pre2k, pct_2k, pct_vl, pct_vr, 
+  select(pitcher_id, pitch_type, pct_vl, pct_vr, 
          velo_label, ivb_label, hb_label)
 
 
