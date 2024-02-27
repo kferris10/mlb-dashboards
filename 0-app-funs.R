@@ -102,24 +102,29 @@ generate_kzone <- function() {
   kzone
 }
 plot_locations <- function(data) {
+  data$px_clean <- pmax(-2, pmin(2, data$px_clean))
+  data$pz_clean <- pmax(0.5, pmin(4.5, data$pz_clean))
   kzone <- generate_kzone()
   
   p <- ggplot2::ggplot(data, ggplot2::aes(
-    x = pmax(-2, pmin(2, px_clean)), 
-    y = pmax(0.5, pmin(4.5, pz_clean)), 
-    colour = pitch_type
+    x = px_clean, 
+    y = pz_clean, 
+    colour = pitch_type, 
+    fill = pitch_type
   )) + 
     ggplot2::geom_polygon(aes(x, y), data = kzone, fill = NA, colour = "black") + 
-    ggplot2::geom_point(size = 2) +  
+    # ggplot2::geom_point(size = 0.7) +
+    ggplot2::stat_ellipse(geom = "polygon", linetype = 2, alpha = 0.2, level = 0.7) + 
     ggplot2::scale_x_continuous(limits = c(-2, 2)) + 
     ggplot2::scale_y_continuous(limits = c(0.5, 4.5)) + 
     ggplot2::scale_color_brewer(name = NULL, type = "qual", palette = 7) + 
+    ggplot2::scale_fill_brewer(name = NULL, type = "qual", palette = 7) + 
     bslib::theme_bootswatch("lux") + 
     ggplot2::theme(panel.background = element_rect(fill=NA), 
           axis.title = element_blank(), 
           axis.text = element_blank(), 
           axis.ticks = element_blank(), 
           legend.position = c(.9, .8)) + 
-    ggplot2::labs(caption = "Last 200 pitches, catcher's perspective.")
+    ggplot2::labs(caption = "Last 200 pitches, catcher's perspective.  Only pitches used 10% get shown.")
   p
 }

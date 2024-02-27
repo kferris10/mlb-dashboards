@@ -61,6 +61,7 @@ server <- function(input, output, session) {
     dat_pit_results() |> 
       gt() |> 
       color_fun(z_raa600, raa700) |> 
+      color_fun(z_raa600_split, raa700_split) |> 
       color_fun(z_kpct, kpct, r = F) |> 
       color_fun(z_bbpct, bbpct) |>
       color_fun(z_contact, contact) |>
@@ -114,10 +115,9 @@ server <- function(input, output, session) {
       geom_hline(aes(yintercept = 0), colour = "grey80") + 
       geom_point(size = 2) + 
       geom_point(data = mlb_avgs, shape = 4, size = 4, stroke = 1.7, colour = "black") + 
-      # geom_point(data = mlb_avgs, size = 4) +
       scale_x_continuous(limits = c(-25, 25), name = NULL) + 
       scale_y_continuous(limits = c(-25, 25), name = NULL) + 
-      scale_color_brewer(name = NULL, type = "qual", palette = 7) + 
+      scale_color_brewer(name = NULL, type = "qual", palette = 7) +
       theme_bootswatch("lux") + 
       theme(panel.background = element_rect(fill=NA), 
             axis.text = element_text(size = 14), 

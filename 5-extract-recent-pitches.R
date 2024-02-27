@@ -13,8 +13,9 @@ set.seed(42)
 
 # package setup
 library(tidyverse)
+library(here)
 
-df_pitch <- readRDS("2023-11-02-app/data/3-pitch_data.RDS")
+df_pitch <- readRDS(file.path(here(), "data/3-pitch_data.RDS"))
 
 # grab recent pitches for each pitcher -----------------------------------------
 
@@ -24,17 +25,17 @@ df_recent <- df_pitch %>%
   # filter to last 365 + most recent 200
   filter(game_date >= Sys.Date() - 365, !is.na(pitch_type)) %>% 
   arrange(pitcher_id, desc(game_date), desc(ab_index)) %>% 
-  group_by(pitcher_id) %>% 
+  group_by(pitcher_id, bathand) %>% 
   mutate(r = 1:n()) %>% 
   ungroup() %>% 
   filter(r <= 200) %>% 
-  # filter out < 5% used pitches
-  group_by(pitcher_id) %>%
+  # filter out < 10% used pitches
+  group_by(pitcher_id, bathand) %>%
   mutate(n = n()) %>%
-  group_by(pitcher_id, pitch_type) %>%
+  group_by(pitcher_id, pitch_type, bathand) %>%
   mutate(n_pit = n()) %>%
   ungroup() %>%
-  filter(n_pit / n >= .05) %>%
+  filter(n_pit / n >= .1) %>%
   # clean
   mutate(px_clean = coalesce(px, px_chart), 
          pz_clean = coalesce(pz, pz_chart), 
@@ -53,6 +54,6 @@ df_mlb_avg <- df_recent %>%
 
 # saving -------------------------------------------------------------
 
-save(df_recent, df_mlb_avg, file = "2023-11-02-app/data/5-pitcher-recent-pitches.RData")
+save(df_recent, df_mlb_avg, file = file.path(here(), "data/5-pitcher-recent-pitches.RData"))
 
 

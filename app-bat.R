@@ -7,9 +7,7 @@
 # add xwoba
 # make live web page
 # set strikezone using top/bottom or strike%
-# regions for pitch usage
 # icelandic color scheme
-# add splits
 # add NCAA stats
 # deploy
 # park adjust pitch data
