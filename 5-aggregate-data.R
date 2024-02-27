@@ -138,6 +138,8 @@ df_pit_metrics <- df_pitch %>%
     n_2k = sum(strikes >= 2), 
     n_vl = sum(bathand == "L"), 
     n_vr = sum(bathand == "R"), 
+    n_swing = sum(swing), 
+    n_miss = sum(contact), 
     velo = mean(velo), 
     hb = mean(hb), 
     ivb = mean(ivb), 
@@ -147,9 +149,21 @@ df_pit_metrics <- df_pitch %>%
   mutate(pct_pre2k = n_pre2k / sum(n_pre2k), 
          pct_2k = n_2k / sum(n_2k), 
          pct_vl = n_vl / sum(n_vl), 
-         pct_vr = n_vr / sum(n_vr)) %>% 
+         pct_vr = n_vr / sum(n_vr), 
+         pct_miss = n_miss / n_swing) %>% 
   ungroup() %>% 
   arrange(pitcher_id, pitch_type)
+df_pit_metrics_bip <- df_bip %>% 
+  filter(game_date >= Sys.Date() - 365) %>% 
+  group_by(pitcher_id, pitch_type) %>% 
+  summarise(
+    n_has_ev = sum(!is.na(ev)), 
+    ev = mean(ev, na.rm = T), 
+    pct_gb = mean(hit_type == "line_drive", na.rm = T), 
+    .groups = "drop"
+  ) %>% 
+  mutate(ev = ifelse(n_has_ev <= 50, NA, ev))
+  
 
 # combining --------------------------------------------------------------------
 
@@ -174,6 +188,7 @@ df_pit_stats <- df_pit_pa %>%
   mutate(across(c(raa700, raa700_split, ev_avg), ~ round(.x, 1)), 
          across(c(kpct, bbpct, iz, contact, gbpct), ~ round(.x, 3)))
 df_pit_metrics_display <- df_pit_metrics  %>% 
+  left_join(df_pit_metrics_bip, by = c("pitcher_id", "pitch_type")) %>% 
   left_join(df_pit_metrics_mlb, by = c("pithand", "pitch_type"), suffix = c("", "_mlb")) %>% 
   mutate(across(c(velo, hb, ivb, velo_mlb, hb_mlb, ivb_mlb), ~ round(.x, 1)), 
          across(c(pct_pre2k, pct_2k), ~ round(.x, 3))) %>% 
@@ -181,7 +196,8 @@ df_pit_metrics_display <- df_pit_metrics  %>%
          hb_label = paste0(hb, " (", hb_mlb, ")"), 
          ivb_label = paste0(ivb, " (", ivb_mlb, ")")) %>% 
   select(pitcher_id, pitch_type, pct_vl, pct_vr, 
-         velo_label, ivb_label, hb_label)
+         velo_label, ivb_label, hb_label, 
+         pct_miss, ev, pct_gb)
 
 
 # saving

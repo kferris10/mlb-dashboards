@@ -90,7 +90,8 @@ server <- function(input, output, session) {
   output$tbl_metrics <- render_gt({
     dat_pit_metrics() |> 
       gt() |> 
-      fmt_percent(c(pct_vl, pct_vr), decimals = 1) |> 
+      fmt_percent(c(pct_vl, pct_vr, pct_miss, pct_gb), decimals = 1) |> 
+      fmt_number(c(ev), decimals = 1) |> 
       tab_options(table.font.size = "80%") |> 
       sub_missing(missing_text = "-") |> 
       cols_align("center") |> 
@@ -100,7 +101,10 @@ server <- function(input, output, session) {
                  pct_vr = "vR%", 
                  velo_label = "Velo", 
                  hb_label = "HB", 
-                 ivb_label = "IVB")
+                 ivb_label = "IVB", 
+                 pct_miss = "Ct%", 
+                 ev = "EV", 
+                 pct_gb = "GB%")
   })
   output$plot_mvmt <- renderPlot({
     hand <- unique(dat_pit_recent()$pithand)

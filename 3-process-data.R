@@ -57,7 +57,7 @@ df_bip <- df_all %>%
   filter(hit_type %in% c("", "ground_ball", "line_drive", "fly_ball", "popup")) %>% 
   mutate(valid_tm = has_tm & (hit_type != "bunt")) %>% 
   select(game_pk, game_date, season, level, home_league_id, play_id, home_team, 
-         inning, ab_index, batter_id, pitcher_id, bathand, pithand, outs, 
+         inning, ab_index, batter_id, pitcher_id, bathand, pithand, outs, pitch_type, 
          pa_outcome, hit_type, valid_tm, ev, la, dist, spray_chart) %>% 
   distinct()
 

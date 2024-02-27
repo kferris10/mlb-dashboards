@@ -5,7 +5,6 @@
 # add run/def value
 # add projection
 # add xwoba
-# make live web page
 # set strikezone using top/bottom or strike%
 # icelandic color scheme
 # add NCAA stats
