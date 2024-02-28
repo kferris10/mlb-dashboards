@@ -95,7 +95,7 @@ server <- function(input, output, session) {
       tab_options(table.font.size = "80%") |> 
       sub_missing(missing_text = "-") |> 
       cols_align("center") |> 
-      cols_hide(pitcher_id) |> 
+      cols_hide(c(pitcher_id, raa700)) |> 
       cols_label(pitch_type = "Type", 
                  pct_vl = "vL%", 
                  pct_vr = "vR%", 

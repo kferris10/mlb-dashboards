@@ -125,6 +125,6 @@ plot_locations <- function(data) {
           axis.text = element_blank(), 
           axis.ticks = element_blank(), 
           legend.position = c(.9, .8)) + 
-    ggplot2::labs(caption = "Last 200 pitches, catcher's perspective.  Only pitches used 10% get shown.")
+    ggplot2::labs(caption = "Last 200 pitches, catcher's perspective.  70% of pitches within region shown, only pitches used 10% get shown.")
   p
 }
