@@ -143,6 +143,7 @@ df_pit_metrics <- df_pitch %>%
     velo = mean(velo), 
     hb = mean(hb), 
     ivb = mean(ivb), 
+    raa700 = 7 / 6 * mean(pitch_raa600, na.rm = T), 
     .groups = "drop"
   ) %>% 
   group_by(pitcher_id) %>% 
@@ -197,7 +198,7 @@ df_pit_metrics_display <- df_pit_metrics  %>%
          ivb_label = paste0(ivb, " (", ivb_mlb, ")")) %>% 
   select(pitcher_id, pitch_type, pct_vl, pct_vr, 
          velo_label, ivb_label, hb_label, 
-         pct_miss, ev, pct_gb)
+         raa700, pct_miss, ev, pct_gb)
 
 
 # saving

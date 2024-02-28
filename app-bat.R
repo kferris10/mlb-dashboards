@@ -10,7 +10,6 @@
 # add NCAA stats
 # deploy
 # park adjust pitch data
-# RAA/GB/Miss to pitch data
 
 # setup ------------------------------------------------------------------------
 
